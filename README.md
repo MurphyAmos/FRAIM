@@ -1,8 +1,19 @@
-# FRAIM
-A small Flask app that takes a video link and returns a structured, searchable analysis of the video's content: an overview, key points, a timestamped timeline, takeaways, and topics. It downloads and compresses the video, sends it to Google Gemini, and returns the result as validated JSON.
+# FRAIM — AI-Powered Video Intelligence
 
-Users bring their own Gemini API key (BYOK), so no key is stored on the server.
+FRAIM is a multimodal video analysis application that transforms video content into structured, searchable information using Google Gemini.
 
+Instead of watching an entire video to locate specific information, users can submit a video URL and receive detailed summaries, timestamped events, key observations, topics, and takeaways.
+
+### Key Features
+
+- **Multimodal Video Analysis:** Extracts meaningful information from audiovisual content using Gemini.
+- **Intelligent Download Fallback:** Downloads and compresses videos locally when possible, falling back to direct URL analysis when downloading fails.
+- **Timestamped Event Navigation:** Organizes significant moments into a chronological timeline.
+- **Structured JSON Output:** Produces detailed results using the `video_intelligence_v2` schema.
+- **Evidence Classification:** Distinguishes directly observed information, interpretations, and claims reported within videos.
+- **Bring Your Own Key:** Users supply their own Gemini API credentials.
+- **Temporary Media Processing:** Automatically cleans up downloaded and compressed files after processing.
+  
 ## What it does
 
 Given a video URL, the app produces a single JSON object designed to power a front end with:
@@ -10,8 +21,7 @@ Given a video URL, the app produces a single JSON object designed to power a fro
 * Expandable summary cards
 * A detailed timeline for navigation
 * Searchable events and key points
-* Natural-language questions about the video's content
-
+* Structured video information suitable for future natural-language retrieval and question answering.
 ## System architecture
 
 ### Overview
@@ -61,7 +71,7 @@ flowchart TD
 4. **Fallback.** If `yt-dlp` raises a `DownloadError`, the app skips the download and passes the original URL directly to Gemini instead.
 5. **Analysis.** The video (or URL) and a detailed analysis prompt are sent to Gemini through the `google-genai` Interactions API:
    * Downloaded files are sent as base64 and sampled at 0.5 fps (one frame every 2 seconds).
-   * The request runs in the background with streaming enabled, so long jobs are not cancelled mid-process.
+   * Gemini processes the interaction in background mode with streaming enabled. The Flask endpoint remains synchronous and waits for the streamed response before returning the result.
    * Thought summaries and text chunks are streamed to the server console as they arrive.
    * The response is constrained to JSON.
 6. **Validation and storage.** The streamed text is joined and parsed with `json.loads`. Invalid or empty output raises a clear error. Each successful result is appended as one line to `data.jsonl`.
@@ -125,14 +135,22 @@ The prompt adapts its language to the video category (educational, podcast, news
 Clone the repository:
 
 ```bash
-git clone <your-repo-url>
-cd <your-repo-folder>
+git clone https://github.com/MurphyAmos/FRAIM.git
+cd FRAIM
+
+python -m venv .venv
+
+# Windows PowerShell
+.venv\Scripts\Activate.ps1
+
+# macOS / Linux
+source .venv/bin/activate
 ```
 
 Install Python dependencies:
 
 ```bash
-pip install flask yt-dlp google-genai
+pip install -r requirements.txt
 ```
 
 Install `ffmpeg` and make sure it is on your `PATH`:
