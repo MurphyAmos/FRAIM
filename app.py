@@ -38,7 +38,7 @@ def compress_video_subprocess(input_path, output_path=None, crf=26):
         "-i", str(input_path),
         "-c:v", "libx264",
         "-preset", "veryfast",
-        "-crf", crf,
+        "-crf", str(crf),
         "-c:a", "aac",
         "-b:a", "96k",
         str(output_path)
