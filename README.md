@@ -207,7 +207,6 @@ Other failures (Gemini errors, invalid JSON from the model, ffmpeg errors) surfa
 * **Requests are synchronous.** The Flask route blocks until download, compression, and analysis finish. A job queue with polling or server-sent events would suit longer videos better.
 * **URL fallback is limited.** When the download fails, Gemini receives only the URL and may not be able to access it, which can lead to `partial` or `unavailable` results.
 * **Unused duration value.** The duration from `yt-dlp` is read but not passed into the analysis.
-* **Development settings.** The app runs with `debug=True` and has no authentication or rate limiting, so it should not be exposed publicly as is.
 * **Unbounded log growth.** `data.jsonl` is append-only with no rotation.
 * **No UI documentation.** The front-end template is not covered here.
 
